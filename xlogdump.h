@@ -20,6 +20,8 @@ typedef struct OrgXLogRecPtr
 	uint32		xrecoff;		/* byte offset of location in log file */
 } OrgXLogRecPtr;
 
+#define SizeOfXLogContRecord	sizeof(OrgXLogContRecord)
+
 typedef struct OrgXLogRecord
 {
 	uint32		xl_tot_len;		/* total len of entire record */
