@@ -6,7 +6,7 @@
  */
 #ifndef __XLOGDUMP_STATEMENT_H__
 #define __XLOGDUMP_STATEMENT_H__
-
+#include "access/heapam_xlog.h"
 #include "postgres.h"
 #include "access/htup.h"
 
