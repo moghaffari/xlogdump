@@ -56,25 +56,25 @@ extern const char * const RM_names[RM_MAX_ID+1];
 void print_xlog_rmgr_stats(int);
 
 void enable_rmgr_dump(bool);
-void print_rmgr_xlog(XLogRecPtr, XLogRecord *, uint8, bool);
-void print_rmgr_xact(XLogRecPtr, XLogRecord *, uint8, bool);
-void print_rmgr_smgr(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_clog(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_dbase(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_tblspc(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_multixact(XLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_xlog(OrgXLogRecPtr, XLogRecord *, uint8, bool);
+void print_rmgr_xact(OrgXLogRecPtr, XLogRecord *, uint8, bool);
+void print_rmgr_smgr(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_clog(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_dbase(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_tblspc(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_multixact(OrgXLogRecPtr, XLogRecord *, uint8);
 
 #if PG_VERSION_NUM >= 90000
-void print_rmgr_relmap(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_standby(XLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_relmap(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_standby(OrgXLogRecPtr, XLogRecord *, uint8);
 #endif
 
-void print_rmgr_heap2(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_heap(XLogRecPtr, XLogRecord *, uint8, bool);
-void print_rmgr_btree(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_hash(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_gin(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_gist(XLogRecPtr, XLogRecord *, uint8);
-void print_rmgr_seq(XLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_heap2(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_heap(OrgXLogRecPtr, XLogRecord *, uint8, bool);
+void print_rmgr_btree(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_hash(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_gin(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_gist(OrgXLogRecPtr, XLogRecord *, uint8);
+void print_rmgr_seq(OrgXLogRecPtr, XLogRecord *, uint8);
 
 #endif /* __XLOGDUMP_RMGR_H__ */

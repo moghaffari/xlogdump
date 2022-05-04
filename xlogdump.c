@@ -63,8 +63,8 @@ static uint32		logSeg;	       /* current log file segment */
 static int32		logPageOff;    /* offset of current page in file */
 static int		logRecOff;     /* offset of next record in page */
 static char		pageBuffer[XLOG_BLCKSZ];	/* current page */
-static XLogRecPtr	curRecPtr;     /* logical address of current record */
-static XLogRecPtr	prevRecPtr;    /* logical address of previous record */
+static OrgXLogRecPtr	curRecPtr;     /* logical address of current record */
+static OrgXLogRecPtr	prevRecPtr;    /* logical address of previous record */
 static char		*readRecordBuf = NULL; /* ReadRecord result area */
 static uint32		readRecordBufSize = 0;
 
@@ -100,11 +100,11 @@ static void print_xlog_stats();
 
 static bool readXLogPage(void);
 void exit_gracefuly(int);
-static bool RecordIsValid(XLogRecord *, XLogRecPtr);
+static bool RecordIsValid(XLogRecord *, OrgXLogRecPtr);
 static bool ReadRecord(void);
 
 static void dumpXLogRecord(XLogRecord *, bool);
-static void print_backup_blocks(XLogRecPtr, XLogRecord *);
+static void print_backup_blocks(OrgXLogRecPtr, XLogRecord *);
 
 static void addTransaction(XLogRecord *);
 static void dumpTransactions();
@@ -219,7 +219,7 @@ exit_gracefuly(int status)
  * We assume all of the record has been read into memory at *record.
  */
 static bool
-RecordIsValid(XLogRecord *record, XLogRecPtr recptr)
+RecordIsValid(XLogRecord *record, OrgXLogRecPtr recptr)
 {
 	pg_crc32	crc;
 	int			i;
@@ -554,7 +554,7 @@ dumpXLogRecord(XLogRecord *record, bool header_only)
 }
 
 static void
-print_backup_blocks(XLogRecPtr cur, XLogRecord *rec)
+print_backup_blocks(OrgXLogRecPtr cur, XLogRecord *rec)
 {
 	char *blk;
 	int i;
