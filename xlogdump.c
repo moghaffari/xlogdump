@@ -170,12 +170,13 @@ readXLogPage(void)
 		 */
 		if (!enable_stats)
 		{
+			OrgXLogRecPtr ptr = (OrgXLogRecPtr)((XLogPageHeader) pageBuffer)->xlp_pageaddr;
 			printf("[page:%d, xlp_info:%d, xlp_tli:%d, xlp_pageaddr:%X/%X] ",
 			       logPageOff / XLOG_BLCKSZ,
 			       ((XLogPageHeader) pageBuffer)->xlp_info,
 			       ((XLogPageHeader) pageBuffer)->xlp_tli,
-			       ((OrgXLogRecPtr)((((XLogPageHeader) pageBuffer))->)xlp_pageaddr).xlogid,
-			       ((OrgXLogRecPtr)((((XLogPageHeader) pageBuffer))->)xlp_pageaddr).xrecoff);
+			       ptr.xlogid,
+			       ptr.xrecoff);
 			
 			if ( (((XLogPageHeader)pageBuffer)->xlp_info & XLP_FIRST_IS_CONTRECORD) )
 				printf("XLP_FIRST_IS_CONTRECORD ");
