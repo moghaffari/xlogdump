@@ -7,6 +7,7 @@
 #include "xlogdump_statement.h"
 
 #include "access/tupmacs.h"
+#include "access/heapam_xlog.h"
 #include "catalog/pg_type.h"
 #include "storage/bufpage.h"
 #include "utils/datetime.h"

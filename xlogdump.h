@@ -42,7 +42,7 @@ typedef struct OrgXLogRecord
 
 #define PRINT_XLOGRECORD_HEADER(X,Y) \
 	printf("[cur:%X/%X, xid:%d, rmid:%d(%s), len/tot_len:%d/%d, info:%d, prev:%X/%X] ", \
-	       (OrgXLogRecPtr)(X).xlogid, (OrgXLogRecPtr)(X).xrecoff, \
+	       (X).xlogid, (X).xrecoff, \
 	       (Y)->xl_xid,		\
 	       (Y)->xl_rmid,		\
 	       RM_names[(Y)->xl_rmid],	\
