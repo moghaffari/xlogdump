@@ -100,13 +100,13 @@ static void print_xlog_stats();
 
 static bool readXLogPage(void);
 void exit_gracefuly(int);
-static bool RecordIsValid(XLogRecord *, OrgXLogRecPtr);
+static bool RecordIsValid(OrgXLogRecord *, OrgXLogRecPtr);
 static bool ReadRecord(void);
 
-static void dumpXLogRecord(XLogRecord *, bool);
-static void print_backup_blocks(OrgXLogRecPtr, XLogRecord *);
+static void dumpXLogRecord(OrgXLogRecord *, bool);
+static void print_backup_blocks(OrgXLogRecPtr, OrgXLogRecord *);
 
-static void addTransaction(XLogRecord *);
+static void addTransaction(OrgXLogRecord *);
 static void dumpTransactions();
 static void dumpXLog(char *);
 static void help(void);
@@ -219,7 +219,7 @@ exit_gracefuly(int status)
  * We assume all of the record has been read into memory at *record.
  */
 static bool
-RecordIsValid(XLogRecord *record, OrgXLogRecPtr recptr)
+RecordIsValid(OrgXLogRecord *record, OrgXLogRecPtr recptr)
 {
 	pg_crc32	crc;
 	int			i;
@@ -291,8 +291,8 @@ static bool
 ReadRecord(void)
 {
 	char	   *buffer;
-	XLogRecord *record;
-	XLogContRecord *contrecord;
+	OrgXLogRecord *record;
+	OrgXLogContRecord *contrecord;
 	uint32		len,
 				total_len;
 	int			retries = 0;
@@ -313,7 +313,7 @@ restart:
 			{
 				printf("Skipping unexpected continuation record at offset %X\n",
 					   logPageOff);
-				contrecord = (XLogContRecord *) (pageBuffer + logRecOff);
+				contrecord = (OrgXLogContRecord *) (pageBuffer + logRecOff);
 				logRecOff += MAXALIGN(contrecord->xl_rem_len + SizeOfXLogContRecord);
 			}
 		}
@@ -321,7 +321,7 @@ restart:
 
 	curRecPtr.xlogid = logId;
 	curRecPtr.xrecoff = logSeg * XLogSegSize + logPageOff + logRecOff;
-	record = (XLogRecord *) (pageBuffer + logRecOff);
+	record = (OrgXLogRecord *) (pageBuffer + logRecOff);
 
 	if (record->xl_len == 0)
 	{
@@ -394,7 +394,7 @@ restart:
 		uint32			gotlen = len;
 
 		memcpy(buffer, record, len);
-		record = (XLogRecord *) buffer;
+		record = (OrgXLogRecord *) buffer;
 		buffer += len;
 		for (;;)
 		{
@@ -414,7 +414,7 @@ restart:
 				return false;
 			}
 			pageHeaderSize = XLogPageHeaderSize((XLogPageHeader) pageBuffer);
-			contrecord = (XLogContRecord *) (pageBuffer + pageHeaderSize);
+			contrecord = (OrgXLogContRecord *) (pageBuffer + pageHeaderSize);
 			if (contrecord->xl_rem_len == 0 || 
 				total_len != (contrecord->xl_rem_len + gotlen))
 			{
@@ -441,7 +441,7 @@ restart:
 	}
 	/* Record is contained in this page */
 	memcpy(buffer, record, total_len);
-	record = (XLogRecord *) buffer;
+	record = (OrgXLogRecord *) buffer;
 	logRecOff += MAXALIGN(total_len);
 	if (!RecordIsValid(record, curRecPtr))
 		return false;
@@ -449,7 +449,7 @@ restart:
 }
 
 static void
-dumpXLogRecord(XLogRecord *record, bool header_only)
+dumpXLogRecord(OrgXLogRecord *record, bool header_only)
 {
 	uint8	info = record->xl_info & ~XLR_INFO_MASK;
 
@@ -554,7 +554,7 @@ dumpXLogRecord(XLogRecord *record, bool header_only)
 }
 
 static void
-print_backup_blocks(OrgXLogRecPtr cur, XLogRecord *rec)
+print_backup_blocks(OrgXLogRecPtr cur, OrgXLogRecord *rec)
 {
 	char *blk;
 	int i;
@@ -596,7 +596,7 @@ print_backup_blocks(OrgXLogRecPtr cur, XLogRecord *rec)
  * If the transactions xid already is on the list it sums the total len and check for a status change
  */
 static void
-addTransaction(XLogRecord *record)
+addTransaction(OrgXLogRecord *record)
 {
 	uint8	info = record->xl_info & ~XLR_INFO_MASK;
 	int	status = 0;
@@ -682,9 +682,9 @@ dumpXLog(char* fname)
 	while (ReadRecord())
 	{
 		if(!transactions)
-			dumpXLogRecord((XLogRecord *) readRecordBuf, false);
+			dumpXLogRecord((OrgXLogRecord *) readRecordBuf, false);
 		else
-			addTransaction((XLogRecord *) readRecordBuf);
+			addTransaction((OrgXLogRecord *) readRecordBuf);
 
 		prevRecPtr = curRecPtr;
 	}

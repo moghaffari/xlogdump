@@ -89,10 +89,10 @@ static struct xlogdump_rmgr_stats_t rmgr_stats;
 
 static pg_time_t _timestamptz_to_time_t(TimestampTz);
 static char *str_time(time_t);
-static bool dump_xlog_btree_insert_meta(XLogRecord *);
+static bool dump_xlog_btree_insert_meta(OrgXLogRecord *);
 /* GIST stuffs */
-static void decodePageUpdateRecord(PageUpdateRecord *, XLogRecord *);
-static void decodePageSplitRecord(PageSplitRecord *, XLogRecord *);
+static void decodePageUpdateRecord(PageUpdateRecord *, OrgXLogRecord *);
+static void decodePageSplitRecord(PageSplitRecord *, OrgXLogRecord *);
 
 void
 print_xlog_rmgr_stats(int rmid)
@@ -162,7 +162,7 @@ enable_rmgr_dump(bool flag)
  * with the detail.
  */
 static void
-print_rmgr_record(OrgXLogRecPtr cur, XLogRecord *rec, const char *detail)
+print_rmgr_record(OrgXLogRecPtr cur, OrgXLogRecord *rec, const char *detail)
 {
 	if (!dump_enabled)
 		return;
@@ -172,7 +172,7 @@ print_rmgr_record(OrgXLogRecPtr cur, XLogRecord *rec, const char *detail)
 }
 
 void
-print_rmgr_xlog(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool hideTimestamps)
+print_rmgr_xlog(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info, bool hideTimestamps)
 {
 	char buf[1024];
 
@@ -277,7 +277,7 @@ print_rmgr_xlog(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool hideTime
 }
 
 void
-print_rmgr_xact(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool hideTimestamps)
+print_rmgr_xact(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info, bool hideTimestamps)
 {
 	char buf[1024];
 
@@ -408,7 +408,7 @@ print_rmgr_xact(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool hideTime
 }
 
 void
-print_rmgr_smgr(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_smgr(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char spaceName[NAMEDATALEN];
 	char dbName[NAMEDATALEN];
@@ -452,7 +452,7 @@ print_rmgr_smgr(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_clog(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_clog(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char buf[1024];
 
@@ -478,7 +478,7 @@ print_rmgr_clog(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_dbase(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_dbase(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char buf[1024];
 
@@ -514,14 +514,14 @@ print_rmgr_dbase(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_tblspc(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_tblspc(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	/* FIXME: need to be implemented. */
 	print_rmgr_record(cur, record, "tblspc");
 }
 
 void
-print_rmgr_multixact(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_multixact(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char buf[1024];
 
@@ -565,7 +565,7 @@ print_rmgr_multixact(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 #if PG_VERSION_NUM >= 90000
 
 void
-print_rmgr_relmap(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_relmap(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char buf[1024];
 
@@ -590,7 +590,7 @@ print_rmgr_relmap(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_standby(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_standby(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	/* FIXME: need to be implemented. */
 	print_rmgr_record(cur, record, "standby");
@@ -599,7 +599,7 @@ print_rmgr_standby(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 #endif 
 
 void
-print_rmgr_heap2(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_heap2(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char spaceName[NAMEDATALEN];
 	char dbName[NAMEDATALEN];
@@ -701,7 +701,7 @@ print_rmgr_heap2(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_heap(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool statements)
+print_rmgr_heap(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info, bool statements)
 {
 	char spaceName[NAMEDATALEN];
 	char dbName[NAMEDATALEN];
@@ -897,7 +897,7 @@ print_rmgr_heap(OrgXLogRecPtr cur, XLogRecord *record, uint8 info, bool statemen
 }
 
 static bool
-dump_xlog_btree_insert_meta(XLogRecord *record)
+dump_xlog_btree_insert_meta(OrgXLogRecord *record)
 {
 	char spaceName[NAMEDATALEN];
 	char dbName[NAMEDATALEN];
@@ -940,7 +940,7 @@ dump_xlog_btree_insert_meta(XLogRecord *record)
 }
 
 void
-print_rmgr_btree(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_btree(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	char spaceName[NAMEDATALEN];
 	char dbName[NAMEDATALEN];
@@ -1170,7 +1170,7 @@ print_rmgr_btree(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_hash(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_hash(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	/* FIXME: need to be implemented. */
 	print_rmgr_record(cur, record, "hash");
@@ -1178,7 +1178,7 @@ print_rmgr_hash(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 
 /* copied from backend/access/gist/gistxlog.c */
 static void
-decodePageUpdateRecord(PageUpdateRecord *decoded, XLogRecord *record)
+decodePageUpdateRecord(PageUpdateRecord *decoded, OrgXLogRecord *record)
 {
 	char	   *begin = XLogRecGetData(record),
 			   *ptr;
@@ -1216,7 +1216,7 @@ decodePageUpdateRecord(PageUpdateRecord *decoded, XLogRecord *record)
 
 /* copied from backend/access/gist/gistxlog.c */
 static void
-decodePageSplitRecord(PageSplitRecord *decoded, XLogRecord *record)
+decodePageSplitRecord(PageSplitRecord *decoded, OrgXLogRecord *record)
 {
 	char	   *begin = XLogRecGetData(record),
 			   *ptr;
@@ -1247,14 +1247,14 @@ decodePageSplitRecord(PageSplitRecord *decoded, XLogRecord *record)
 }
 
 void
-print_rmgr_gin(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_gin(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	/* FIXME: need to be implemented. */
 	print_rmgr_record(cur, record, "gin");
 }
 
 void
-print_rmgr_gist(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_gist(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	print_rmgr_record(cur, record, "git");
 
@@ -1363,7 +1363,7 @@ print_rmgr_gist(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
 }
 
 void
-print_rmgr_seq(OrgXLogRecPtr cur, XLogRecord *record, uint8 info)
+print_rmgr_seq(OrgXLogRecPtr cur, OrgXLogRecord *record, uint8 info)
 {
 	/* FIXME: need to be implemented. */
 	print_rmgr_record(cur, record, "seq");
